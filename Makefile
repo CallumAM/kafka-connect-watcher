@@ -55,15 +55,15 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 test: ## run tests quickly with the default Python
-	behave tests/features
-	pytest tests/pytests -vv -s -x
+# 	poetry run python -m behave tests/features
+	poetry run python -m pytest tests -vv -s -x
 
 test-all: ## run tests on every Python version with tox
-	tox --skip-missing-interpreters
+	poetry run python -m tox --skip-missing-interpreters
 
 coverage: ## check code coverage quickly with the default Python
-	poetry run coverage run --source kafka_connect_watcher -m behave tests/features --junit
-	poetry run coverage run --source kafka_connect_watcher -a -m pytest tests/pytests -vv -x
+	#poetry run coverage run --source kafka_connect_watcher -m behave tests/features --junit
+	poetry run python -m pytest -W ignore --cov=kafka_connect_watcher --cov-report term-missing:skip-covered --cov-report lcov:docs/cov.info --log-level=CRITICAL
 	poetry run coverage report -m
 	poetry run coverage xml -o coverage/coverage.xml
 	poetry run coverage html
