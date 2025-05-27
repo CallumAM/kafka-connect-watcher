@@ -1,9 +1,10 @@
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+
 from .cluster import ConnectCluster
 
 # pytest
-
 
 
 @pytest.fixture
@@ -15,13 +16,18 @@ def minimal_cluster_config():
         "metrics": {},
     }
 
+
 @pytest.fixture
 def watcher_config():
     return MagicMock()
 
+
 @patch("kafka_connect_watcher.cluster.Api")
 @patch("kafka_connect_watcher.cluster.Cluster")
-@patch("kafka_connect_watcher.cluster.set_else_none", side_effect=lambda k, d, *a: d.get(k, a[0] if a else None))
+@patch(
+    "kafka_connect_watcher.cluster.set_else_none",
+    side_effect=lambda k, d, *a: d.get(k, a[0] if a else None),
+)
 @patch("kafka_connect_watcher.cluster.keyisset", side_effect=lambda k, d: k in d)
 @patch("kafka_connect_watcher.cluster.EvaluationRule")
 @patch("kafka_connect_watcher.cluster.EmfConfig")
@@ -45,13 +51,18 @@ def test_connect_cluster_init_basic(
     assert isinstance(cluster.metrics, dict)
     assert cluster.metrics["connectors"] == {}
 
+
 def test_connect_cluster_typeerror(watcher_config):
     with pytest.raises(TypeError):
         ConnectCluster("notadict", watcher_config)
 
+
 @patch("kafka_connect_watcher.cluster.Api")
 @patch("kafka_connect_watcher.cluster.Cluster")
-@patch("kafka_connect_watcher.cluster.set_else_none", side_effect=lambda k, d, *a: d.get(k, a[0] if a else None))
+@patch(
+    "kafka_connect_watcher.cluster.set_else_none",
+    side_effect=lambda k, d, *a: d.get(k, a[0] if a else None),
+)
 @patch("kafka_connect_watcher.cluster.keyisset", side_effect=lambda k, d: k in d)
 @patch("kafka_connect_watcher.cluster.EvaluationRule")
 @patch("kafka_connect_watcher.cluster.EmfConfig")
@@ -72,9 +83,13 @@ def test_connect_cluster_name_fallback(
     cluster = ConnectCluster(config, watcher_config)
     assert cluster.name == "hosty_8083" or cluster.name == "hosty_5555"
 
+
 @patch("kafka_connect_watcher.cluster.Api")
 @patch("kafka_connect_watcher.cluster.Cluster")
-@patch("kafka_connect_watcher.cluster.set_else_none", side_effect=lambda k, d, *a: d.get(k, a[0] if a else None))
+@patch(
+    "kafka_connect_watcher.cluster.set_else_none",
+    side_effect=lambda k, d, *a: d.get(k, a[0] if a else None),
+)
 @patch("kafka_connect_watcher.cluster.keyisset", side_effect=lambda k, d: k in d)
 @patch("kafka_connect_watcher.cluster.EvaluationRule")
 @patch("kafka_connect_watcher.cluster.EmfConfig")

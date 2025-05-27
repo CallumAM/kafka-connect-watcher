@@ -1,10 +1,11 @@
 import sys
 import types
-from unittest.mock import patch, MagicMock, call
+from queue import Queue
+from unittest.mock import MagicMock, call, patch
+
 import pytest
-from .watcher import Watcher, process_error_rules, process_cluster
-from queue import Queue
-from queue import Queue
+
+from .watcher import Watcher, process_cluster, process_error_rules
 
 # pytest
 
@@ -150,10 +151,11 @@ def test_process_cluster_breaks_on_none(monkeypatch):
     q.put([watcher, config, None], False)
     # Should not raise or hang
     process_cluster(q)from unittest.mock import MagicMock, patch
+from queue import Queue
+
 import pytest
-from kafka_connect_watcher.watcher import Watcher, process_error_rules, process_cluster
-from queue import Queue
-from queue import Queue
+
+from kafka_connect_watcher.watcher import Watcher, process_cluster, process_error_rules
 
 # pytest
 

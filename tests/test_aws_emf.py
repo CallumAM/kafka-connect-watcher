@@ -1,15 +1,17 @@
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+
 from kafka_connect_watcher.aws_emf import (
+    handle_watcher_emf,
     init_emf_config,
     publish_cluster_metrics,
-    publish_connector_metrics,
     publish_clusters_emf,
+    publish_connector_metrics,
     publish_watcher_emf_metrics,
-    handle_watcher_emf,
 )
-from kafka_connect_watcher.config import Config
 from kafka_connect_watcher.cluster import ConnectCluster
+from kafka_connect_watcher.config import Config
 from kafka_connect_watcher.watcher import Watcher
 
 
@@ -19,10 +21,13 @@ def test_init_emf_config():
     config.emf_service_type = "test_type"
     config.emf_log_group = "test_log_group"
 
-    with patch("kafka_connect_watcher.aws_emf.get_event_loop", side_effect=RuntimeError), \
-         patch("kafka_connect_watcher.aws_emf.new_event_loop") as mock_new_loop, \
-         patch("kafka_connect_watcher.aws_emf.set_event_loop") as mock_set_loop, \
-         patch("kafka_connect_watcher.aws_emf.emf_config") as mock_emf_config:
+    with patch(
+        "kafka_connect_watcher.aws_emf.get_event_loop", side_effect=RuntimeError
+    ), patch("kafka_connect_watcher.aws_emf.new_event_loop") as mock_new_loop, patch(
+        "kafka_connect_watcher.aws_emf.set_event_loop"
+    ) as mock_set_loop, patch(
+        "kafka_connect_watcher.aws_emf.emf_config"
+    ) as mock_emf_config:
         mock_loop = MagicMock()
         mock_new_loop.return_value = mock_loop
 
@@ -47,7 +52,9 @@ def test_publish_cluster_metrics(mock_log):
     publish_cluster_metrics(cluster, metrics)
 
     metrics.reset_dimensions.assert_called_once_with(use_default=False)
-    metrics.set_property.assert_called_once_with("ConnectDetails", {"designation": "test_cluster"})
+    metrics.set_property.assert_called_once_with(
+        "ConnectDetails", {"designation": "test_cluster"}
+    )
     metrics.put_dimensions.assert_called_once()
     metrics.put_metric.assert_called_once_with("metric1", 100, None, 60)
 
@@ -68,9 +75,15 @@ def test_publish_connector_metrics(mock_log):
 
     metrics.set_namespace.assert_called_once_with("test_namespace")
     metrics.reset_dimensions.assert_called_once_with(use_default=False)
-    metrics.set_property.assert_called_once_with("ConnectDetails", {"designation": "test_cluster"})
+    metrics.set_property.assert_called_once_with(
+        "ConnectDetails", {"designation": "test_cluster"}
+    )
     metrics.put_dimensions.assert_called_once_with(
-        {"key": "value", "ConnectorName": "test_connector", "ConnectCluster": "test_cluster"}
+        {
+            "key": "value",
+            "ConnectorName": "test_connector",
+            "ConnectCluster": "test_cluster",
+        }
     )
     metrics.put_metric.assert_called_once_with("metric1", 100, None, 60)
 
@@ -82,9 +95,11 @@ def test_publish_clusters_emf(mock_publish_connector, mock_publish_cluster):
     cluster.emf_config.enabled = True
     cluster.metrics = {"connectors": {"connector1": {"metric1": 100}}}
 
-    with patch("kafka_connect_watcher.aws_emf.get_event_loop", side_effect=RuntimeError), \
-         patch("kafka_connect_watcher.aws_emf.new_event_loop") as mock_new_loop, \
-         patch("kafka_connect_watcher.aws_emf.set_event_loop") as mock_set_loop:
+    with patch(
+        "kafka_connect_watcher.aws_emf.get_event_loop", side_effect=RuntimeError
+    ), patch("kafka_connect_watcher.aws_emf.new_event_loop") as mock_new_loop, patch(
+        "kafka_connect_watcher.aws_emf.set_event_loop"
+    ) as mock_set_loop:
         mock_loop = MagicMock()
         mock_new_loop.return_value = mock_loop
 
@@ -93,7 +108,9 @@ def test_publish_clusters_emf(mock_publish_connector, mock_publish_cluster):
         mock_new_loop.assert_called_once()
         mock_set_loop.assert_called_once_with(mock_loop)
         mock_publish_cluster.assert_called_once_with(cluster)
-        mock_publish_connector.assert_called_once_with(cluster, "connector1", {"metric1": 100})
+        mock_publish_connector.assert_called_once_with(
+            cluster, "connector1", {"metric1": 100}
+        )
 
 
 @patch("kafka_connect_watcher.aws_emf.LOG")
